@@ -1,0 +1,113 @@
+<html><head>
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico" />
+    <script src="https://kit.fontawesome.com/c9acfba105.js" crossorigin="anonymous"></script>
+    <script type='text/javascript'>
+        function gotop() {
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+        }
+    </script>
+
+    
+    
+    <link rel='stylesheet' href='../styles/toplevel.css' />
+    
+    <link rel='stylesheet' href='../styles/footerHeader.css' />
+    
+    <link rel='stylesheet' href='../styles/post.css' />
+    
+</head><body>
+
+<!-- Auto-generated navbar -->
+
+<nav id='nav-bar'>
+    <div id='content-bar'>
+        <a href="/">Jiachen Niu</a>
+        <div id='nav-link'>
+            <a href='../index.html'>Home</a>
+            <a href='../blog/index.html'>Blog</a>
+            <a href='../index.html#contact-root'>Contact</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Copied body -->
+
+
+ 
+<div id='content-wrapper'>
+    <div id='content' style='width:750px;'>
+        <h1>Video Codecs & Patents</h1>
+        <p id='content-date'>Aug. 8, 2021, 12:17:05</p>
+        
+        <p>
+            I've only seen open-sourced code throughout my college years. For a long time, I had the false belief that almost all non-trivial computing tasks, that is relatively small in scale, can be done with some free open source software. Although proprietary code and software exist, I didn't imagine patent to be applied on a seemingly small but crucial task as video encoding and decoding.
+        </p>
+
+        <h2>Terminologies for Video Files</h2>
+        <p>
+            Common video file extensions, like <icode>.mp4</icode> and <icode>.mkv</icode>, specify the video <b>formats</b>. A video format specifies a way to pack video, audio and metadata in to a single file that is smaller in size and easier to share.
+        </p>
+        <p>
+            <b>Codecs</b> are standards used to encode/decode videos or audios to reduce their storage sizes during transit. Common video codecs are <b>H.264</b>(aka Advanced Video Coding/AVC), which is used for <icode>.mp4</icode> formatted videos, and <b>H.265</b>(aka High Efficiency Video Coding). Both were proposed by MPEG(The Moving Picture Experts Group) and are patented.
+        </p>
+        
+        <h2>Codec Patent</h2>
+        <p>
+            From the website of the licenser of both codecs above, <b>MPEG LA</b>, the encoding and decoding methods of H.264 and H.265 are patented. Programs that uses them must pay a royalty fee to the patent holders.
+        </p>
+        <p>
+            This means programs that generate <icode>.mp4</icode> files (ie. screen recorders, smart phones and TVs), and those that read <icode>.mp4</icode> files (ie. video players, game stations) may be subjugated to patent fees. Ever wonder why there aren't many choices for a good video player?
+        </p>
+        <p>
+            It's hard to judge whether the patents on codecs are beneficial to maintaining a useable and universal video codec, or detrimental to regular users who have to pay extra money for any software or electronics that deal with those codecs.
+        </p>
+
+        <h2>Free Video Software</h2>
+        <p>
+            Although a patent is held and actively enforced on misuses of those codecs, there are existing free software that deals with videos in those codecs - <a href='https://www.videolan.org'>VLC Media Player</a> and <a href='https://www.ffmpeg.org/legal.html'>FFmpeg</a>. How come they are not still free?
+        </p>
+        <p>
+            For <b>VLC Media Player</b>, the answer is pretty simple and clearly written on their legal page - <u>the French and European laws don't "recognize software as patentable"</u>. Since VLC Media Player is created by a company based in France, the patents on codecs don't apply.
+        </p>
+        <p>
+            As for <b>FFmpeg</b>, their legal page does a more thorough justification. In summary, the creators of FFmpeg haven't read any of the patented code when they created their software. Therefore, they cannot be held responsible for directly using patented code. However, they do warn that the algorithms they use may conform to certain standards that may require licensing fees under certain jurisdictions.
+        </p>
+        <br>
+        <p>
+            Regardless of whether those simple justifications are convincing or not, a note to take is that both software are completely free to regular users for non-commercial uses, and their works are open source under the <a href='https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html'>GPL v2.0</a>(General Public License). The GPL protects the software from patents that may make the software not free. Therefore, provided with both an ethical and a legal justification, those two software are legitimate free.
+        </p>
+
+        <h2>Free Codecs</h2>
+        <p>
+            Surely, seeing the complicatedness to enforce and conform to patent rights and the inability to put any situation that a codec may be misused into law, people have started to developing free codecs. Some examples are <a href='https://www.webmproject.org/vp9/'>VP9</a> by Google and <a href='https://research.mozilla.org/av1-media-codecs/'>AV1</a> by Mozilla. Among video formats, <icode>.mkv</icode> or <a href='https://matroska.org'>Matroska video format</a>, developed by another non-profit France organization, is also patent-free. It is codec-independent, meaning video files with <icode>.mkv</icode> extensions can be overall either patented or non-patented based on the codec used.
+        </p>
+        <br>
+        <br>
+ 
+        <h3>Useful Links/References:</h3>
+        <p>
+            <a href='https://en.wikipedia.org/wiki/Video_file_format'>Video File Formats - Wikipedia</a><br>
+            <a href='https://en.wikipedia.org/wiki/Advanced_Video_Coding'>AVC Codec - Wikipedia</a><br>
+            <a href='https://en.wikipedia.org/wiki/High_Efficiency_Video_Coding'>HEVC Codec - Wikipedia</a><br>
+            <a href='https://www.mpegla.com/programs/avc-h-264/'>AVC Codec License - MPEG LA</a><br>
+            <a href='https://www.videolan.org/legal.html'>VLC Media Player Legal Page - videolan.org</a><br>
+            <a href='https://www.ffmpeg.org/legal.html'>FFmpeg Legal Page - ffmpeg.org</a><br>
+            <a href='https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html'>GPL v2.0 - gnu.org</a><br>
+            <a href='https://research.mozilla.org/av1-media-codecs/'>AV1 Codec - mozilla</a><br>
+            <a href='https://www.webmproject.org/vp9/'>VP9 Codec - webmproject.org</a><br>
+            <a href='https://matroska.org/legal.html'>Matroska Legal Page - matroska.org</a><br>
+            <a href='http://aomedia.org/about/'>Alliance for Open Media - aomedia.org</a><br>
+        </p>
+    </div>
+</div>
+
+<!-- Auto-generated footer -->
+<div id='contact-root'>
+    <div id='contact-content'>
+        <a href="https://github.com/Hackerry"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/niu-j-ba2216194/"><i class="fab fa-linkedin-in"></i></a>
+        <a href="mailto:harrynjc@gmail.com"><i class="far fa-envelope"></i></a>
+    </div>
+</div></body></html>
