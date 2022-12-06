@@ -1,0 +1,261 @@
+---
+layout: archive
+title: Sum of Distinct Fibonacci Numbers
+categories: archive
+---
+
+<div id='content-wrapper'>
+    <div id='content' style='width:750px;'>
+        <h1>Sum of Distinct Fibonacci Numbers (Some Proofs)</h1>
+        <p id='content-date'>Sep. 9, 2021, 15:23:02</p>
+        
+        <p>
+            A couple of days ago, my friends and I worked together on an algorithm problem we found online. I proposed a potential solution but I didn't come up with a proper proof for it. Intuition says the theory is correct, but an actual proof for it requires multiple steps as dictated here.
+        </p>
+        <p>
+            The question is - "Given 2 positive integers, <icode>n</icode> and <icode>k</icode>, check whether <icode>k</icode> can be represented as a sum of <icode>n</icode> <u>distinct</u> fibonacci numbers".
+        </p>
+
+        <h2>My Solution</h2>
+        <p>
+            There are 3 steps to my solution:<br>
+            1. Find the minimum number of distinct Fibonacci numbers <icode>k</icode> can be written into.<br>
+            2. Find the maximum number of such Fibonacci numbers.<br>
+            3. Check whether <icode>k</icode> is in that range.<br>
+        </p>
+
+        <h2>Step 1</h2>
+        <p>
+            To find the minimum set of Fib numbers, I proposed the theory that "the smallest set of distinct Fibonacci numbers that sum to <icode>k</icode> must contain <icode>p</icode>, which is the largest Fib number that is smaller than <icode>k</icode>".
+        </p>
+        <p>
+            <b>Lemma 1: Every positive integers can be written as a sum of distinct Fib numbers.</b><br>
+            <p>
+                There is already a theorem that indirectly proves this statement - the Zeckendorf's theorem, but it's better to prove it ourselves as the proof is simple to write and serves as a good refresher on "Proof by Induction" which we will use later for the statement above.
+            </p>
+            <p>
+                <b>Base Case:</b><br>
+                1 and 2 can be written as a sum of distinct Fib numbers (ie. they are Fib numbers themselves).<br>
+                <b>Induction Hypothesis:</b><br>
+                Assume the statement is true for <b>ALL</b> positive number <icode>k</icode> with <icode>2&lt;k</icode>, let's prove the statement is also true for <icode>k+1</icode>. Let's also define a convenient function <icode>F(k)</icode> which gives the set of distinct Fib numbers <icode>k</icode> can be written as a sum of.<br>
+                <b>Induction Case:</b><br>
+                <p>
+                    We know if <icode>k+1</icode> is a Fib number already, the statement is trivially correct. Therefore, we only need to look at the case when <icode>k+1</icode> is not a Fib number.
+                </p>
+                <p>
+                    Let <icode>p,q</icode> be two Fib number that are immediately to the left of <icode>k+1</icode> with <icode>q &lt; p &lt; k+1</icode> (ie. if <icode>k+1=9</icode>, then <icode>q=5</icode> and <icode>p=8</icode>). Since <icode>k+1-p</icode> must be less than <icode>q</icode>, otherwise the immediate left Fib number of <icode>k+1</icode> is <icode>p+q</icode>, and <icode>q&lt;p</icode>, we know <icode>k+1-p &lt; p</icode>.
+                
+                <p>
+                    Then by our induction hypothesis, we know <icode>k+1-p</icode> can be written as a sum of distinct Fib numbers smaller than <icode>p</icode> (ie. not including <icode>p</icode>). Therefore, we can prove <icode>k+1</icode> can be written as a sum of distinct Fib numbers, namely <icode>{p} &Union; F(k+1-p)</icode>.
+                </p>
+            </p>
+        </p>
+        <br>
+        <br>
+        <p>
+            <b>Lemma 2: The sum of the first distinct <icode>n</icode> Fib numbers is <icode>f<sub>n+2</sub> - 2</icode>.</b>
+            <p>
+                This fact is easily proven by writing out each Fib number as the difference between 2 of its immediate larger Fib numbers. So, <icode>f<sub>n</sub> = f<sub>n+2</sub>-f<sub>n+1</sub>, f<sub>n-1</sub> = f<sub>n+1</sub>-f<sub>n</sub>, ... f<sub>1</sub> = f<sub>3</sub>-f<sub>2</sub></icode>. The middle terms cancel out when we add them together to get <icode>f<sub>n</sub> = f<sub>n+2</sub>-2</icode>.
+            </p>
+        </p>
+        <br>
+        <br>
+        <p>
+            <b>Proof: The smallest set of distinct Fib numbers that sums to <icode>k</icode> must contain the largest Fib number that is smaller than <icode>k</icode></b><br>
+            <p>
+                Let's define a convenient function <icode>M(k)</icode> which gives the smallest set of distinct Fib numbers that sums to <icode>k</icode>. Similarly the statement can be proven by induction.
+            </p>
+            <p>
+                <b>Base Case:</b><br>
+                <icode>1 &isin; M(1), 2 &isin; M(2)</icode>.<br>
+                <b>Induction Hypothesis:</b><br>
+                Assume the statement is true for <b>ALL</b> <icode>1..k-1</icode>. Let's prove it's also true for <icode>k</icode>.<br>
+                <b>Induction Case:</b><br>
+                <p>
+                    Let's define <icode>f<sub>n</sub></icode> to be the largest Fib number that is smaller than or equal to <icode>k</icode>, and <icode>f<sub>n-1</sub></icode> to be the largest Fib number that is smaller than <icode>f<sub>n-1</sub></icode>. Let's also assume the statement is wrong and <icode>f<sub>n</sub></icode> is not in the smallest set (ie. <icode>f<sub>n</sub> &notin; M(k)</icode>).
+                </p>
+                <p>
+                    Because we know from Lemma 2 that the sum of the first <icode>x</icode> Fib numbers is smaller than <icode>f<sub>x+2</sub></icode>, then the smallest set must contain <icode>f<sub>n-1</sub></icode> (ie. <icode>f<sub>n-1</sub> &isin; M(k)</icode>). Otherwise, the largest value we can achieve by taking everything smaller than, and including <icode>f<sub>n-2</sub></icode> is <icode>f<sub>n</sub>-1 &lt; f<sub>n</sub> &leq; k</icode>.
+                </p>
+                <p>
+                    So we can split <icode>M(k)</icode> into 2 parts, <icode>M(k) = {f<sub>n-1</sub>} &Union; M(k-f<sub>n-1</sub>)</icode>. The work now is to find the minimum set of distinct Fib numbers that sum to <icode>k-f<sub>n-1</sub></icode>.
+                </p>
+                <p>
+                    From our definition of <icode>f<sub>n</sub></icode> and <icode>f<sub>n-1</sub></icode>, and the definition of Fib numbers, we know <icode>f<sub>n</sub> &leq; k &lt; f<sub>n-1</sub>+f<sub>n</sub></icode> and thus <icode>f<sub>n-2</sub> = f<sub>n</sub>-f<sub>n-1</sub> &leq; k-f<sub>n-1</sub> &lt; f<sub>n</sub></icode>.
+                </p>
+                <p>
+                    By the induction hypothesis, we know the minimum set of distinct Fib numbers for <icode>k-f<sub>n</sub></icode> must contain <icode>f<sub>n-2</sub></icode>. Since both <icode>f<sub>n-1</sub></icode> and <icode>f<sub>n-2</sub></icode> are present in <icode>M(k)</icode>, <icode>M(k)</icode> is not the smallest set.
+                </p>
+                <br>
+                <p>
+                    Therefore, the smallest set must contain <icode>f<sub>n</sub></icode>.
+                </p>
+            </p>
+        </p>
+
+        <p>
+            Now with the proof in place, we can device a greedy algorithm that repeatedly takes the largest Fib number possible until we get a sum equal to <icode>k</icode>.
+        </p>
+
+        <h2>Step 2</h2>
+        <p>
+            Once we know the smallest set, we can try expanding it by breaking the numbers in this set into smaller numbers to obtain the maximum set.
+        </p>
+        <p>
+            An orderly way of achieving this is to start with the smallest number in the set and break it into numbers as small as possible. However, if breaking the current number results in duplicate Fib numbers being used, we would stop.
+        </p>
+        <br>
+        <br>
+        <p>
+            <b>Lemma 3: All sets of distinct Fib numbers that sum to <icode>k</icode> can be transformed into the minimum set <icode>M(k)</icode> by combining neighboring Fib numbers.</b>
+            <p>
+                Let's prove by contradiction. Assume we have a set of distinct Fib numbers <icode>S(k)</icode> that sums to <icode>k</icode> and it doesn't include <icode>f<sub>n</sub></icode>, the largest Fib number smaller or equal to <icode>k</icode>, both directly and indirectly (ie. elements of the set cannot be combined to get <icode>f<sub>n</sub></icode>).
+            </p>
+            <p>
+                From Lemma 2 we know <icode>f<sub>n-1</sub></icode> must be in <icode>S(k)</icode> or we would never get to a sum of <icode>k</icode>. As <icode>f<sub>n-1</sub></icode> is fixed, we now must pick the remaining Fib numbers that is smaller than <icode>f<sub>n-1</sub></icode> and which together sum to <icode>k-f<sub>n-1</sub> &geq; f<sub>n-2</sub></icode>. By Lemma 2 again, we know we can only take <icode>f<sub>n-2</sub></icode> or <icode>f<sub>n-3</sub></icode>. Otherwise, we would never get to the expected sum (ie. <icode>k-f<sub>n-1</sub></icode>).
+            </p>
+            <p>
+                However, by the definition of <icode>S(k)</icode>, we must not include <icode>f<sub>n-2</sub></icode> in the set or we indirectly include <icode>f<sub>n</sub></icode> (ie. <icode>f<sub>n</sub> = f<sub>n-1</sub>+f<sub>n-2</sub></icode>). This leaves only <icode>f<sub>n-3</sub></icode> as the valid next number to pick. The remaining sum is <icode>k-f<sub>n-1</sub>-f<sub>n-3</sub> &geq; f<sub>n-4</sub></icode>.
+            </p>
+            <p>
+                The only valid next choices from this stage on are <icode>f<sub>n-5</sub>, f<sub>n-7</sub>, f<sub>n-9</sub></icode>... And the remaining sum keeps decreasing but never reaches 0: <icode>f<sub>n-4</sub>, f<sub>n-6</sub>, f<sub>n-8</sub>...</icode>.
+            </p>
+            <p>
+                In the end, there are only 2 possibilities: the last Fib number included is either <icode>1</icode> or <icode>2</icode>. No matter which case it is, if we sum the Fib numbers we have already chosen, we will always get a remaining value of <icode>1</icode>, which we must get by adding another <icode>1</icode>.
+            </p>
+            <p>
+                However, adding a <icode>1</icode> to the set will make the set indirectly contain <icode>f<sub>n</sub></icode> (ie. combine terms all the way back to <icode>f<sub>n</sub></icode>), which contradicts with the definition of <icode>S(k)</icode>. Therefore, all valid sets of distinct Fib numbers that sum to <icode>k</icode> must directly or indirectly contain <icode>f<sub>n</sub></icode>.
+            </p>
+            <p>
+                It's easy to see that if we apply this fact repeatedly on <icode>k</icode> (ie. like how we computed <icode>M(k)</icode> in step 1), we would get a set that is either <icode>M(k)</icode> or can be transformed into <icode>M(k)</icode> by combining terms.
+            </p>
+        </p>
+        <br>
+        <br>
+        <p>
+            Now that we know all valid sets that have a sum of <icode>k</icode> can be transformed into the minimum set <icode>M(k)</icode>. Then it suffices to show that the maximum set obtained by transforming the minimum set is indeed the global maximum set.
+        </p>
+        <p>
+            But how do we transform <icode>M(k)</icode> to obtain the maximum set? The idea is simple, to break the Fib numbers in <icode>M(k)</icode> as many times as possible. However, I haven't come up with a solid proof for my algorithm, so the best I can do is to offer an intuitive explanation.
+        </p>
+        <br>
+        <br>
+        <p>
+            It is worth noting that there is only one way to break a <b>single</b> Fib number - breaking <icode>f<sub>x</sub></icode> into <icode>f<sub>x-1</sub></icode> and <icode>f<sub>x-2</sub></icode>, and then breaking <icode>f<sub>x-2</sub></icode> into <icode>f<sub>x-3</sub></icode> and <icode>f<sub>x-4</sub></icode>, etc. Any other breaking sequence would yield duplicates (ie. can be easily proved).
+        </p>
+        <p>
+            To break <b>multiple</b> numbers, we must follow certain rules to not introduce duplicates. During the process of breaking down a larger Fib number, and when the sequence of numbers being broken into, overlaps with a smaller Fib number, the breaking stops. Otherwise, we will certainly introduce duplicates. For example, let's assume <icode>M(k) = {3,21}</icode>. After breaking <icode>21</icode> once into <icode>{13,8}</icode>, the next breaking will generate another <icode>3</icode> which is redundant.
+        </p>
+        <p>
+            Therefore, we must break a Fib number as many times as permitted if the final sequence doesn't overlap with other Fib numbers.
+        </p>
+
+        <h2>Step 3</h2>
+        <p>
+            We check whether <icode>n</icode> is in the range.
+        </p>
+
+        <h2>Code</h2>
+        <div style='font-size:1.2rem;'>
+            <label style='min-width:30px;display:inline-block;'>K =</label><input style='margin-left:10px;padding:2px 5px;' id="k" placeholder="Value of k..." autocomplete="off" /><br>
+            <label style='min-width:30px;display:inline-block;'>N =</label><input style='margin-left:10px;padding:2px 5px;' id="n" placeholder="Value of n..." autocomplete="off" /><br>
+            <input type="button" value="Test" id="test" style='padding:5px;min-width:50px;' /><br>
+            <p id='result'></p>
+            <span>Min Set: </span><p id='minSet'></p>
+            <span>Max Set: </span><p id='maxSet'></p>
+        </div>
+
+        <h3>Useful Links/References:</h3>
+        <p>
+            <a href='https://en.wikipedia.org/wiki/Zeckendorf%27s_theorem'>Zeckendorf's theorem - Wikipedia</a>
+        </p>
+    </div>
+</div>
+
+<script>
+    var kInput = document.getElementById("k");
+    var nInput = document.getElementById("n");
+    var resultOut = document.getElementById("result");
+    var minOut = document.getElementById("minSet");
+    var maxOut = document.getElementById("maxSet");
+    document.getElementById("test").onclick = test;
+
+    const limit = 100000;
+    
+    function test() {
+        var k = parseInt(kInput.value);
+        var n = parseInt(nInput.value);
+        
+        
+        if(isNaN(k) || isNaN(n) || k > limit || n > limit || k < 0 || n < 0) {
+            resultOut.innerHTML = "<icode>N</icode> and <icode>K</icode> is limited to [0," + limit + "]";
+            return;
+        }
+
+        
+        var answer = [];
+        var fibs = [];
+        fibs.push(1);
+        fibs.push(2);
+        while(fibs[fibs.length-1]+fibs[fibs.length-2] <= k) fibs.push(fibs[fibs.length-1] + fibs[fibs.length-2]);
+        console.log(fibs, n, k);
+
+        
+        var minSet = [];
+        var remainingSum = k;
+        var fibIndex = fibs.length-1;
+        while(remainingSum > 0) {
+            
+            if(fibs[fibIndex] > remainingSum) fibIndex--;
+            else {
+                remainingSum -= fibs[fibIndex];
+                minSet.push(fibIndex);
+            }
+        }
+        
+        if(answer.length == 0 && minSet.length == n) {
+            for(var j = minSet.length-1; j >= 0; j--) answer.push(fibs[minSet[j]]);
+        }
+        var minS = "";
+        for(var i = minSet.length-1; i >= 0; i--) minS += fibs[minSet[i]] + " ";
+        minS += "(" + minSet.length + ")";
+        minOut.innerText = minS;
+
+        
+        var maxSet = [];
+        var maxIndex = -1;
+        for(var i = minSet.length-1; i >= 0; i--) {
+            
+            var tempSeq = [];
+            var curIdx = minSet[i];
+            while(curIdx-2 > maxIndex) {
+                tempSeq.push(curIdx-1);
+                curIdx = curIdx-2;
+
+                
+                if(maxSet.length + tempSeq.length + 1 + i === n) {
+                    for(var j of maxSet) answer.push(fibs[j]);
+                    answer.push(fibs[curIdx]);
+                    for(var j = tempSeq.length-1; j >= 0; j--) answer.push(fibs[tempSeq[j]]);
+                    for(var j = 0; j < i; j++) answer.push(fibs[minSet[j]]);
+                }
+            }
+            tempSeq.push(curIdx);
+            maxIndex = tempSeq[0];
+
+            
+            for(var j = tempSeq.length-1; j >= 0; j--) maxSet.push(tempSeq[j]);
+        }
+
+        var maxS = "";
+        for(var i of maxSet) maxS += fibs[i] + " ";
+        maxS += "(" + maxSet.length + ")";
+        maxOut.innerText = maxS;
+
+        var result;
+        if(n == 0) result = (k == 0);
+        else result = (answer.length == n);
+
+        resultOut.innerText = "Result: " + result + " " + (result ? " - [" + answer + "]": "");
+    }
+</script>

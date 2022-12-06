@@ -1,0 +1,52 @@
+---
+layout: default
+---
+<link rel="stylesheet" href="/assets/css/post.css">
+<link rel="stylesheet" href="/assets/css/highlight.css">
+<script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+<div id='content-wrapper'>
+    <div id="page-nav"></div>
+    <div id='content-root'>
+        <h1 id="content-title">{{ page.title }}</h1>
+        <p id='content-date'>{{ page.date | date: "%b. %-d, %Y" }}</p>
+        <div id="content">
+            {{ content }}
+        </div>
+    </div>
+</div>
+
+<!-- Script for the navigation bar -->
+<script type="text/javascript">
+    function generateNavBar() {
+        var navBar = document.getElementById("page-nav");
+        var parentNode = document.getElementById("content");
+        var allDoms = parentNode.children;
+        for(var i = 0; i < allDoms.length; i++) {
+            var domName = allDoms[i].tagName.toLocaleLowerCase();
+            // Found a h2 tag
+            if(domName.length === 2 && domName.toLocaleLowerCase()[0] === "h") {
+                var dom = allDoms[i];
+
+                // Create nav link
+                var newLevel = parseInt(domName[1]);
+                var navLink = document.createElement("a");
+                navLink.href = "#" + dom.id;
+                navLink.innerHTML = dom.innerHTML;
+                navLink.style = "margin-left:" + (1 * (newLevel-2)) + "rem;"
+                navBar.appendChild(navLink);
+
+                // Add new anchor dom to offset for the header
+                console.log("Insert new a before:", dom);
+                var anchorDom = document.createElement("a");
+                anchorDom.className = "anchor";
+                anchorDom.id = dom.id;
+                dom.removeAttribute("id");
+                parentNode.insertBefore(anchorDom, dom);
+
+                // Continue to the next
+                i++;
+            }
+        }
+    }
+    generateNavBar();
+</script>

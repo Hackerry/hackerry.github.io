@@ -1,0 +1,384 @@
+---
+layout: archive
+title: Re-Implementing 3Blue1Brown's Fourier Series Drawing
+categories: archive
+---
+
+<div id='content-wrapper'>
+    <div id='content' style='width:750px;'>
+        <h1>Re-Implementing 3Blue1Brown's Fourier Series Drawing</h1>
+        <p id='content-date'>Dec. 15, 2021, 18:11:15</p>
+
+        <p>
+            While learning Fourier Transform, I searched for additional resources online and found a very great video by <a href='https://www.youtube.com/watch?v=spUNpyF58BY'>3Blue1Brown</a> on this topic. His explanations, aided by the animated graphs, were very intuitive and easy to follow.
+        </p>
+        <p>
+            In one of his three-video-sequel on Fourier Transform, he explained how Fourier Series can be used to approximate any "piecewise continuous functions". He also showed how to use circles of different sizes and which are rotating at different frequencies to approximate any 2D drawings, assuming the drawing is continuous.
+        </p>
+        <p>
+            This is so cool! I want to implement a similar program as a proof of me understanding how Fourier Transform works (at least the basics).
+        </p>
+
+        <h2>Fourier Transform Basics</h2>
+        <p>
+            <a href='https://en.wikipedia.org/wiki/Fourier_transform'>Fourier transform</a> is a transformation that decomposes a time or space dependent function into spatial or temporal dependent functions. Fourier Transform is often used in <b>signal processing</b> (ie. voice signal) and <b>lossy image compression</b> (ie. JPEG image format).
+        </p>
+        <p>
+            The classic Fourier Transform takes the integral of continuous functions. In the computing world where everything is discrete, there is an equivalent Discrete Fourier Transform where the integral is replaced with a summation:
+        </p>
+        <p>
+            $$X_k=\sum_{n=0}^{N-1}x_n\cdot e^{-\frac{2\pi i}{N}kn}$$
+        </p>
+        <p>
+            Both $x_n$ and $X_k$'s are complex numbers. The inverse discrete fourier transform is:
+        </p>
+        <p>
+            $$x_n=\frac{1}{N}\sum_{k=0}^{N-1}X_k\cdot e^{\frac{2\pi i}{N}kn}$$
+        </p>
+
+        <h2>Theory Behind Using Circles</h2>
+        <p>
+            Given a sequence of discrete data $\{x_0,...,x_{n-1}\}$, we can perform Fourier Transform on those data and get an equal amount of $X_k$'s. If we then perform the Inverse Fourier Transform on those $X_k$'s, we will get back the same input sequence $\{x_0,...,x_{n-1}\}$.
+        </p>
+        <p>
+            Let's treat the input sequence as the values of some function over some unit time. That is, $x_0$ happens at $t=0$, $x_1$ happens at $t=1$, etc. If we already have the sequence of $X_k$'s, then to get back $x_0$ at $t=0$, we perform Inverse Fourier Transform with $n=0$ as such:
+        </p>
+        <p>
+            $$x_0=\frac{1}{N}\sum_{k=0}^{N-1}X_k\cdot e^{\frac{2\pi i}{N}k\cdot 0} = \frac{1}{N}\sum_{k=0}^{N-1}X_k$$
+        </p>
+        <p>
+            This is quite easy - we just get the average of all $X_k$'s. Similarly to compute $x_1$, we have:
+        </p>
+        <p>
+            $$x_1=\frac{1}{N}\sum_{k=0}^{N-1}X_k\cdot e^{\frac{2\pi i}{N}k\cdot 1} = \frac{1}{N}\sum_{k=0}^{N-1}X_k\cdot e^{\frac{2\pi i}{N}k}$$
+        </p>
+        <p>
+            With $t\ne 0$, the computation gets more complicated but the equation doesn't change much. All we need to do is letting $n=t$.
+        </p>
+        <br>
+        <p>
+            But where do circles come into play?
+        </p>
+        <p>
+            If we look at the summation in the previous step, every term is of the form $X_k\cdot e^{\frac{2\pi i}{N}kn}$.
+        </p>
+        <p>
+            The first part of the product is a fixed number which we get from the initial Fourier Transform.
+        </p>
+        <p>
+            The second part changes with different values of $n$ and it defines a rotation operation at a certain frequency that is different for each $k$. This rotation naturally forms a circle in the complex plane as time $n$ progresses.
+        </p>
+        <p>
+            Combined together, we now see $X_k$ controls the length of a <b>vector</b> whose <b>rotating frequency</b> is controlled by $k$. The data value we want to compute at a certain time $t$ is just the <b>sum of all vectors</b> that are rotating at different frequencies after time $t$ has passed.
+        </p>
+
+        <h2>Implementation</h2>
+        <p>
+            Here are the logical steps I take:
+            <ol>
+                <li>Implement complex numbers calculations w/ data structure</li>
+                <li>Implement Fourier Transform and Inverse Fourier Transform</li>
+                <li>Implement time controls and animations</li>
+            </ol>
+        </p>
+        <p style='font-size:1rem;'>
+            Full code can be found <a href='/assets/files/FFT.js'>here</a>. The Joseph Fourier data is obtained from a similar SVG graph as in the <a href='https://www.youtube.com/watch?v=r6sGWTCMz2k'>video</a>, which is made by Twitter user "Stuart@Biocinematics" (link to <a href='https://twitter.com/biocinematics/status/1143334994175283201'>Tweet</a>).
+        </p>
+        <div>
+            <canvas id='canvas' width=800 height=800 style='border:1px solid black;display:inline-block;'></canvas>
+            <div class="slidecontainer" style='margin:40px 0;'>
+                <label>Choose a graph:</label>
+                <select id="graphSelect">
+                    <option value="fourier" selected>Joseph Fourier</option>
+                    <option value="step">1/-1 Step Function</option>
+                    <option value="character">Anime Character</option>
+                </select><br>
+                <label style='width:100px;display:inline-block;'># of Circles:</label><input type="range" min="1" max="30" value="0" class="slider" id="circlesNum" style='width:60%;'><label id='circlesNumText' style='width:15%;display:inline-block;padding-left:10px;'></label><br>
+                <label style='width:100px;display:inline-block;'>Speed:</label><input type="range" min="50" max="800" value="0" class="slider" id="speed" style='width:60%;'><label id='speedText' style='width:15%;display:inline-block;padding-left:10px;'></label><br>
+                <input type="checkbox" id="showDataPoints" name="showDataPoints">&nbsp;<label for="showDataPoints">Show Input Data Points</label>
+            </div>
+            <p>
+                <u>Or try to draw something here:</u>
+            </p>
+            <canvas id='canvasDraw' width=800 height=800 style='border:1px solid black;display:inline-block;'></canvas>
+        </div>
+
+        <br>
+        <br>
+        <p>
+            <u>Thanks to my roommate, who as a math major, helped me greatly in understanding some of the core math concepts about Fourier Series.</u>
+        </p>
+
+        <h3>Useful Links/References:</h3>
+        <p>
+            <a href='https://en.wikipedia.org/wiki/Fourier_transform'>Fourier Transform - Wikipedia</a><br>
+            <a href='https://en.wikipedia.org/wiki/Discrete_Fourier_transform'>Discrete Fourier Transform - Wikipedia</a><br>
+            <a href='https://www.youtube.com/watch?v=r6sGWTCMz2k'>"But what is a Fourier series? From heat flow to drawing with circles | DE4" - 3Blue1Brown YouTube</a><br>
+            <a href='https://www.youtube.com/watch?v=spUNpyF58BY'>"But what is the Fourier Transform? A visual introduction." - 3Blue1Brown YouTube</a><br>
+            
+        </p>
+    </div>
+
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+        window.MathJax = {
+            tex: {
+              inlineMath: [['$', '$'], ['\\(', '\\)']]
+            }
+        };
+    </script>
+
+    
+    <script src='/assets/files/FFT.js'></script>
+    <script>
+        var canvasDraw = document.getElementById('canvasDraw');
+        var drawCanvasG = canvasDraw.getContext("2d");
+        var drawCenterX = canvasDraw.width/2, drawCenterY = canvasDraw.height/2;
+        drawCanvasG.fillStyle = drawCanvasG.strokeStyle = 'black';
+        var canvasDrawX, canvasDrawY;
+        var drawPoints = [];
+        var drawing = false;
+        var lastPoint = null;
+        canvasDraw.onmousedown = function(e) {
+            drawCanvasG.clearRect(0, 0, canvasDraw.width, canvasDraw.height);
+            canvasDrawX = canvasDraw.getBoundingClientRect().left;
+            canvasDrawY = canvasDraw.getBoundingClientRect().top;
+            drawing = true;
+            drawPoints = [];
+        }
+        canvasDraw.onmousemove = function(e) {
+            if(drawing) {
+                var point = [Math.round(e.clientX-canvasDrawX), Math.round(e.clientY-canvasDrawY)];
+
+                if(drawPoints.length !== 0 && drawPoints[drawPoints.length-1][0] === point[0] && drawPoints[drawPoints.length-1][1] === point[1]) return;
+
+                drawPoints.push(point);
+                if(lastPoint !== null) {
+                    drawCanvasG.beginPath();
+                    drawCanvasG.moveTo(lastPoint[0], lastPoint[1]);
+                    drawCanvasG.lineTo(point[0], point[1]);
+                    drawCanvasG.stroke();
+                }
+                lastPoint = point;
+            }
+        }
+        canvasDraw.onmouseup = function(e) {
+            drawing = false;
+            
+            lastPoint = null;
+            updatePoints(drawPoints);
+        }
+    </script>
+    <script type='text/javascript'>
+        var canvas = document.getElementById('canvas');
+        var circlesNumInput = document.getElementById('circlesNum');
+        var speedInput = document.getElementById('speed');
+        var circlesNumText = document.getElementById('circlesNumText');
+        var speedText = document.getElementById('speedText');
+        var showInputButton = document.getElementById('showDataPoints');
+        var graphSelect = document.getElementById('graphSelect');
+
+        var g = canvas.getContext("2d");
+        var centerX = canvas.width/2;
+        var centerY = canvas.height/2;
+        var canvasW = canvas.width;
+        var canvasH = canvas.height;
+
+        var points = [];
+        var fourier = [[296,123],[310,124],[323,123],[336,123],[358,123],[357,122],[353,122],[348,120],[343,121],[338,122],[331,120],[325,122],[318,124],[326,130],[339,133],[351,131],[361,124],[365,129],[371,122],[371,113],[366,105],[360,99],[353,77],[356,75],[364,79],[381,73],[377,68],[374,70],[366,72],[349,68],[348,57],[354,43],[373,35],[381,44],[385,55],[380,58],[368,49],[354,52],[352,58],[353,59],[356,59],[359,63],[363,62],[365,59],[365,57],[365,57],[368,57],[381,64],[397,72],[397,82],[407,90],[413,72],[413,59],[427,46],[417,51],[425,42],[430,28],[426,16],[436,2],[429,-23],[414,-28],[415,-48],[401,-56],[392,-65],[380,-76],[358,-68],[355,-82],[352,-88],[343,-74],[316,-83],[300,-80],[289,-79],[275,-77],[263,-63],[249,-61],[239,-46],[230,-33],[220,-20],[217,9],[209,20],[213,35],[213,46],[208,52],[214,74],[212,86],[215,101],[230,110],[235,124],[225,127],[213,155],[201,184],[184,201],[181,209],[159,223],[138,243],[107,268],[88,300],[71,357],[69,436],[77,440],[96,445],[149,464],[177,474],[206,481],[212,454],[211,440],[208,414],[208,395],[214,369],[209,356],[215,353],[224,413],[225,438],[227,478],[242,491],[299,495],[347,497],[386,492],[388,470],[386,449],[386,430],[378,429],[374,437],[363,441],[350,434],[354,422],[369,418],[377,423],[383,418],[380,404],[369,376],[367,365],[360,354],[354,354],[350,362],[339,365],[329,360],[333,343],[342,342],[353,344],[357,341],[346,315],[332,285],[325,282],[320,286],[318,296],[301,299],[297,287],[304,276],[317,276],[322,271],[322,264],[319,258],[307,242],[299,220],[290,190],[286,180],[264,167],[251,159],[239,144],[239,136],[255,152],[286,176],[290,185],[294,193],[311,213],[317,226],[329,249],[356,254],[380,249],[382,225],[385,204],[392,184],[404,188],[412,206],[424,246],[424,257],[426,267],[447,284],[448,303],[452,342],[451,369],[438,388],[431,407],[421,427],[410,434],[416,445],[417,473],[418,483],[419,492],[466,484],[505,449],[521,439],[532,422],[528,359],[522,335],[496,283],[476,250],[445,234],[435,206],[427,177],[398,157],[402,126],[404,108],[380,181],[359,188],[317,176],[272,150],[263,139],[254,129],[242,122],[235,112],[227,97],[228,77],[239,83],[250,97],[256,91],[256,85],[271,78],[287,71],[308,56],[321,59],[330,65],[326,74],[322,76],[311,78],[294,77],[300,71],[305,67],[307,70],[312,71],[314,69],[314,67],[317,68],[325,70],[330,72],[335,69],[334,58],[335,53],[335,47],[320,45],[302,48],[278,61],[281,47],[275,27],[275,19],[301,26],[295,23],[284,8],[300,16],[299,11],[296,0],[310,-15],[318,5],[341,-3],[362,-12],[375,-7],[387,6],[395,13],[399,17],[410,29],[426,32],[428,45],[426,53],[416,38],[404,35],[389,36],[380,50],[379,52],[380,56],[386,78],[390,88],[394,99],[394,110],[389,111],[388,108],[386,105],[382,111],[377,110],[373,106],[368,109],[361,110],[361,103],[361,98]];
+        var character = [[255,20],[250,25],[250,220],[255,230],[235,220],[195,225],[140,235],[125,240],[115,250],[110,265],[95,275],[90,300],[85,320],[80,395],[40,430],[100,430],[90,400],[105,430],[90,480],[120,470],[110,440],[125,470],[155,485],[180,485],[205,430],[155,445],[150,430],[140,430],[135,415],[130,395],[125,370],[120,305],[130,285],[140,265],[160,250],[180,240],[240,225],[205,275],[195,305],[190,390],[205,425],[200,385],[200,315],[210,280],[225,255],[245,235],[235,255],[225,280],[215,315],[210,410],[215,425],[210,435],[205,450],[180,480],[235,485],[245,460],[275,480],[315,480],[290,470],[265,450],[235,450],[220,435],[250,425],[260,415],[255,400],[250,365],[245,340],[260,320],[265,295],[280,280],[290,260],[315,250],[345,240],[420,260],[385,260],[380,265],[350,275],[330,285],[315,305],[305,320],[305,385],[295,395],[295,415],[310,430],[305,400],[315,370],[320,390],[320,435],[335,465],[360,475],[320,490],[355,500],[415,500],[420,485],[380,480],[365,470],[360,450],[350,440],[350,350],[355,370],[370,350],[365,365],[395,345],[400,335],[405,380],[395,335],[390,375],[370,375],[360,385],[360,395],[360,385],[370,385],[370,405],[380,415],[390,415],[400,405],[400,385],[400,370],[415,390],[420,360],[425,390],[445,395],[450,390],[455,370],[465,390],[465,350],[470,390],[475,410],[465,425],[455,415],[450,400],[460,390],[475,400],[480,450],[455,470],[425,480],[475,460],[480,475],[490,470],[490,455],[500,460],[510,465],[515,445],[520,395],[520,390],[520,335],[495,305],[475,310],[455,300],[435,290],[420,275],[420,260],[430,245],[440,245],[440,260],[435,260],[435,270],[445,270],[445,260],[460,250],[465,265],[470,275],[460,275],[460,285],[470,285],[470,275],[485,265],[480,255],[510,260],[530,265],[545,280],[550,300],[520,275],[490,270],[485,285],[485,295],[495,295],[500,285],[510,295],[490,310],[420,275],[420,260],[430,235],[420,225],[400,220],[375,230],[345,235],[305,225],[260,220],[260,25]];
+
+        points = fourier;
+
+        var N;
+        var numPointsToDraw;
+        var numCirclesUsed;
+        var t;
+        var curIntervalTime = 100;
+        var tInterval;
+        var scaler = 1;
+        var showDataPoints = false;
+
+        const INITIAL_CIRCLE_MAX = 50;
+
+        updatePoints(points);
+
+        function updatePoints(newPoints) {
+            points = newPoints;
+            N = points.length;
+            numPointsToDraw = N;
+            numCirclesUsed = N;
+
+            
+            points = CenterPoints(points);
+            cn = ComputeCnNormal(points, N);
+            for(var i = 0; i < cn.length; i++) {
+                cn[i].push(i);
+            }
+            cn.sort(function(a, b) {
+                return b[0]*b[0]+b[1]*b[1]-a[0]*a[0]-a[1]*a[1];
+            });
+            console.log("Circles", cn);
+            coords = getOutputGraph(cn, numCirclesUsed, numPointsToDraw);
+
+            circlesNumInput.max = numCirclesUsed;
+            circlesNumInput.value = Math.min(numCirclesUsed, INITIAL_CIRCLE_MAX);
+            circlesNumText.innerText = circlesNumInput.value + " circles";
+
+            t = 0;
+            tInterval = 1.0/numPointsToDraw;
+
+            speedInput.value = curIntervalTime;
+            speedText.innerText = curIntervalTime + "ms";
+
+            updateCircles();
+        }
+
+        function updateCircles() {
+            var temp = circlesNumInput.value;
+            if(temp < 0 || temp > points.length) return;
+            numCirclesUsed = temp;
+            circlesNumText.innerText = circlesNumInput.value + " circles";
+            coords = getOutputGraph(cn, numCirclesUsed, numPointsToDraw);
+        }
+
+        function updateCirclesSelf(circlesUsed) {
+            numCirclesUsed = circlesUsed;
+            coords = getOutputGraph(cn, numCirclesUsed, numPointsToDraw);
+        }
+
+        function updateSpeed() {
+            curIntervalTime = speedInput.value;
+            speedText.innerText = curIntervalTime + "ms";
+            clearInterval(interval);
+            interval = setInterval(intervalFunc, curIntervalTime);
+        }
+
+        function updateDataPoints() {
+            showDataPoints = showInputButton.checked;
+        }
+
+        function updateGraph() {
+            switch(graphSelect.value) {
+                case "fourier":
+                    points = fourier;
+                    break;
+                case "character":
+                    points = character;
+                    break;
+                default:
+                    points = [];
+                    for(var i = 0; i < 10; i++) {
+                        points.push([-100,0]);
+                        points.unshift([100,0]);
+                    }
+            }
+
+            updatePoints(points);
+        }
+
+        circlesNumInput.onchange = updateCircles;
+        speedInput.onchange = updateSpeed;
+        showInputButton.onchange = updateDataPoints;
+        graphSelect.onchange = updateGraph;
+
+        function getOutputGraph(cn, numCirclesUsed, numPointsToDraw) {
+            var deltaT = 1.0/numPointsToDraw;
+            var t = 0;
+            var result = [];
+            for(var i = 0; i < numPointsToDraw; i++) {
+                var temp = ComputeCnsAtT(cn, numCirclesUsed, t);
+                var sum = [0,0];
+                for(var j = 0; j < temp.length; j++) {
+                    sum = addComplex(sum, temp[j]);
+                }
+                t += deltaT;
+                result.push(sum);
+            }
+            return result;
+        }
+
+        function drawOneInstance(points, cn, numCirclesUsed, coords, t, tInterval) {
+            g.clearRect(0,0,canvasW,canvasH);
+
+            
+            var circles = ComputeCnsAtT(cn, numCirclesUsed, t);
+
+            
+            var curCircleLen;
+            for(var i = 0; i < circles.length; i++) {
+                curCircleLen = Math.sqrt(circles[i][0]*circles[i][0]+circles[i][1]*circles[i][1]);
+                circles[i].push(curCircleLen);
+            }
+            circles.sort(function(c1, c2) {
+                return c2[2]-c1[2];
+            });
+            
+            var curPos = [0,0];
+            var curCircleLen;
+            g.strokeStyle = 'rgba(10,10,10,0.2)';
+            for(var i = 0; i < circles.length; i++) {
+                curCircleLen = circles[i][2];
+
+                
+                g.beginPath();
+                g.arc(curPos[0]*scaler+centerX, centerY-curPos[1]*scaler, curCircleLen*scaler, 0, 2*Math.PI);
+                g.stroke();
+
+                
+                g.moveTo(curPos[0]*scaler+centerX, centerY-curPos[1]*scaler);
+
+                curPos = addComplex(curPos, circles[i]);
+
+                g.lineTo(curPos[0]*scaler+centerX, centerY-curPos[1]*scaler);
+                g.stroke();
+            }
+
+            g.fillStyle = 'blue';
+            g.beginPath();
+            g.arc(curPos[0]*scaler+centerX, centerY-curPos[1]*scaler, 3, 0, 2*Math.PI);
+            g.fill();
+
+            
+            if(showDataPoints) drawInputPoints(points);
+            drawOutputGraph(coords);
+        }
+
+        function drawInputPoints(points) {
+            for(var i = 0; i < points.length; i++) {
+                g.fillStyle = 'red';
+                g.beginPath();
+                g.arc(points[i][0]*scaler+centerX, centerY-points[i][1]*scaler, 1, 0, 2 * Math.PI);
+                g.fill();
+            }
+        }
+
+        function drawOutputGraph(coords) {
+            var start = true;
+            for(var i = 0; i < coords.length; i++) {
+                if(start) {
+                    g.strokeStyle = 'black';
+                    g.fillStyle = 'black';
+                    g.beginPath();
+                    g.moveTo(coords[i][0]*scaler+centerX, centerY-coords[i][1]*scaler);
+                    start = false;
+                } else {
+                    g.lineTo(coords[i][0]*scaler+centerX, centerY-coords[i][1]*scaler);
+                }
+            }
+            g.closePath();
+            g.stroke();
+        }
+
+        function intervalFunc() {
+            drawOneInstance(points, cn, numCirclesUsed, coords, t, tInterval);
+
+            
+            t += tInterval;
+            if(t >= 1) t = tInterval;
+        }
+        var interval = setInterval(intervalFunc, curIntervalTime);
+    </script>
+</div>

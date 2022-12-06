@@ -1,0 +1,37 @@
+*::selection {background-color:#424242;color:white}
+body {background-color:#f3efe0;}
+table {color:#636363;text-align: center;border-spacing: 20px 10px;margin:15px;width:100%;}
+table > thead {font-weight: bold; font-size: 1.2em;}
+thead {border-bottom: 1px solid #636363;}
+#content h3 {font-size:1.1rem;}
+.image {text-align: center;margin:20px;}
+.image > p {font-size: 0.2em;}
+
+#content-wrapper{overflow:auto;line-height:2.3em;padding-bottom: 150px;width:100%;font-family:Roboto, 'sans-serif';}
+#content {width:56%;margin:0 auto;padding-top:50px;color:#636363;}
+#blog-list-wrapper {display:block;}
+#content p {font-size:1.2rem;margin-bottom:15px;text-align:left;font-weight:300;}
+#content-date{margin-top:10px;font-size:1rem;}
+#content a {color:#636363;text-decoration:underline;}
+#content b {font-weight: 500;}
+#content > h1{font-size:2.3em;border-bottom:2px solid;padding:20px 0 20px 0;line-height: 1.2em;}
+#content > h2{margin-bottom:25px;border-bottom: 2px solid #636363;display:inline-block;padding:40px 10px 10px 0px;}
+#content > h3{padding:5px 0;line-height: 3em;}
+#content ol {display:block;padding-left:50px;font-weight:300;font-size:1.2rem;}
+#content > a > img {margin: 50px 0;}
+#content > ul > li {font-size:1.2em;}
+.ccode {display:block;list-style:none;padding:0;counter-reset:linenum;font-size:0.8em;margin:20px 0;color:white;}
+.ccode > li {line-height:1.6em;background:black;font-family:"Courier New", Courier, monospace;margin:0;}
+.ccode > li > pre {display:inline;font-family:"Courier New", Courier, monospace;padding-left:10px;}
+.ccode > li > pre > span {font-family:"Courier New", Courier, monospace;}
+.ccode > li::before {line-height:1.7em;counter-increment:linenum; content:counter(linenum);display:inline-block;background-color:#585858;text-align:center;width:25px;color:lightgrey;}
+icode {color:#a20b00;padding:5px;border-radius:5px;font-family:monospace,monospace;font-size:0.8em;display:inline;text-align:left;}
+.iterm {background-color:black;font-size:1.2em;padding:0.5em 0.5em;line-height:1.2em;font-family:"Courier New", Courier, monospace;color:white;margin:20px 0;}
+.iterm > * {font-family:inherit;}
+.iterm *::selection {background-color:white; color:black;}
+.dots {content:"";}
+.dots::after {content:"**********";display:block;width:100%;height:1em;margin:20px 0;letter-spacing:0.5em;}
+.line {content:"";display:block;width:100%;border-bottom:2px dashed #313131;}
+.img-txt, .img-txt-small {display:block;max-width:100%;text-align:center;margin:50px 0;font-size:1em;}
+.img-txt img {max-width:100%;}
+.img-txt-small img {max-width:80%;}

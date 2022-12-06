@@ -1,0 +1,214 @@
+---
+layout: archive
+title: Solving Nonograms with Constraint Solver
+categories: archive
+---
+
+<style>
+    .nonogram {
+        border-collapse: collapse;
+        display: inline;
+    }
+    .nonogram thead {
+        font-weight: normal;
+    }
+
+    .nonogram tr td {
+        width: 1em;
+        vertical-align: bottom;
+        text-align: right;
+        border: 1px solid grey;
+    }
+
+    .nonogram .filled {
+        background-color: black;
+    }
+</style>
+<div id='content-wrapper'>
+    <div id='content' style='width:750px;'>
+        <h1>Solving Nonograms with Constraint Solver</h1>
+        <p id='content-date'>Feb. 28, 2022, 00:55:48</p>
+
+        <p>
+            Constraint solvers are powerful tools to solve combinatorial problems, even difficult optimization problems
+            in machine learning. However, to encode a problem to be solved into pure first-order logic can be difficult
+            and counterintuitive in a regular imperative programming context like Python.
+        </p>
+        <p>
+            Here I want to summarize some of my insights while coding in <a href='https://github.com/Z3Prover/z3'>Z3 Theorem Prover</a>, 
+            an SMT solver created by Microsoft. In particular, I'll describe how to use Z3 to solve Nonogram puzzles and my thought process.
+        </p>
+
+        <h2>Nonograms</h2>
+        <p>
+            Nonogram puzzles are a type of number/logic puzzles like Sudoku. The puzzle is presented as a grid. Before
+            each row/column is a sequence of numbers denoting the number of consecutive filled squares in that
+            row/column in that order. Consecutive filled squares are separated by at least one empty square. We will
+            call these numbers as constraints for each row/column.
+        </p>
+        <p>
+        <div style="text-align:center">
+            <table class="nonogram">
+                <thead>
+                    <tr>
+                        <td></td>
+                        <td>0</td>
+                        <td>5</td>
+                        <td>1</td>
+                        <td>1</td>
+                        <td>5</td>
+                        <td>0</td>
+                        <td>1<br>3</td>
+                        <td>0</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1&nbsp;1&nbsp;1</td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>1&nbsp;1</td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>4&nbsp;1</td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td class="filled"></td>
+                        <td class="filled"></td>
+                        <td class="filled"></td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>1&nbsp;1&nbsp;1</td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>1&nbsp;1&nbsp;1</td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                        <td class="filled"></td>
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>
+            <h4>An Example Nonogram Puzzle with Solution</h4>
+        </div>
+        </p>
+
+        <h2>Solve Nonogram with Z3</h2>
+        <p>
+            The general steps I take to solve a problem with Z3:
+            <ol>
+                <li>Create variables that describe the solution of the problem</li>
+                <li>Generate constraints for each variable that are obvious in the problem (ie. constraints with only
+                    constant terms)</li>
+                <li>Generate constraints that involve multiple variables</li>
+            </ol>
+        </p>
+
+        <h2>Step 1 - Create Variables</h2>
+        <p>
+            In any Nonogram puzzle, the solution can be represented as a subset of all the squares which are filled
+            black. Since the row and column number is known beforehand, a naive approach would be to create one boolean
+            variable for each square denoting whether that square is filled black or not.
+        </p>
+        <p>
+            This representation works but it is not an efficient encoding of the solution because we are only concerned
+            with squares that are filled. If such encoding were to used, it would take Z3 a long time to solve for large
+            Nonogram puzzles.
+        </p>
+        <p>
+        A better encoding would be to only create variables for each filled squares. However, an even better approach is
+        to create only one variables for each consecutive filled square sequence. For example, if a row has constraint
+        <icode>1,3,2</icode>, we would create variables <icode>v<sub>1</sub>,v<sub>3</sub>,v<sub>2</sub></icode>. Each
+        of them represents the column number <icode>v<sub>x</sub></icode> from which a sequence of <icode>x</icode>
+        squares are filled horizontally in the final solution. We create such variables for every row and column
+        constraints to get two 2-d matrices.
+        </p>
+        <p>
+            Such an encoding greatly reduces the variable space as to make the solving process efficient. In the worst
+            case, this process creates at most <icode>m&middot;n/2</icode> variables (ie. a Nonogram with the
+            checkerboard pattern), where <icode>m</icode> and <icode>n</icode> are the sizes of the puzzle.
+        </p>
+
+        <h2>Step 2 - Constant Constraints</h2>
+        <p>
+            For each variable, its value is bounded by either constant <icode>m</icode> or <icode>n</icode>. We generate
+            constraints for those
+        </p>
+        <p>
+            In addition, within each row/column, <icode>v<sub>x</sub>+x+1 &le; v<sub>y</sub></icode> given <icode>
+                v<sub>y</sub></icode> appears after <icode>v<sub>x</sub></icode>. This inequality encodes the fact that
+            every pair of consecutive filled square sequence must have at least one empty-square gap in between. It also
+            encodes the order in which consecutive square sequences appear in that row/column.
+        </p>
+        <p>
+            Because <icode>x</icode> and <icode>y</icode> are constants in this case, they are constant constraints.
+        </p>
+
+        <h2>Step 3 - Variable Constraints</h2>
+        <p>
+            The final set of constraints links row and column constraints together and it requires a little bit of
+            engineering.
+        </p>
+        <p>
+            Conceptually this set of constraints should guarantee that row and column constraints are consistent. More
+            specifically, if square <icode>(row=1,col=3)</icode> is required to be filled by a row constraint, then the
+            column constraint for column 3 must also require the same square to be filled.
+        </p>
+        <p>
+            To encode this relationship directly is very difficult and less ideal. Both sides of the equality are
+            variables and finding the correct variables for each side involves using the existential quantifier, which
+            slows down the solving process.
+        </p>
+        <p>
+            Let's shift the perspective and consider what constraints are required for a square to be filled. A square
+            can only be filled if both row constraint and column constraint says so. In other words, square <icode>
+                (row=1,col=3)</icode> is filled if the row constraint for row 1 requires column 3 to be filled, and the
+            column constraint for column 3 requires row 1 to be filled.
+        </p>
+        <p>
+            This relationship is much easier to encode into logical formulas, since row and column constraints now tie
+            to a single concrete square instead of each other.
+        </p>
+
+        <h2>Final Code</h2>
+        <p><a href="/assets/files/nono.py">Link here: nono.py</a></p>
+        
+
+        <h2>Useful Links/References:</h2>
+        <p>
+            <a href='https://en.wikipedia.org/wiki/Constraint_programming'>Constraint Programming - Wikipedia</a><br>
+            <a href='https://en.wikipedia.org/wiki/Nonogram'>Nonogram - Wikipedia</a><br>
+        </p>
+    </div>
+</div>

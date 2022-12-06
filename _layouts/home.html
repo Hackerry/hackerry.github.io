@@ -1,0 +1,41 @@
+---
+layout: default
+---
+<link rel='stylesheet' href='/assets/css/blog_list.css' />
+<div id='content-wrapper'>
+    <div id='content'>
+        <div id='blog-list-wrapper'>
+            <!-- <div id='tag-list-wrapper'>
+                <ul id='tag-list'>
+                    <li id='all'>All&nbsp;-&nbsp;<span id='all'></span></li>
+                    <li id='study-notes'>Study Notes&nbsp;-&nbsp;<span id='study-notes'></span></li>
+                    <li id='thoughts'>Thoughts&nbsp;-&nbsp;<span id='thoughts'></span></li>
+                </ul>
+            </div> -->
+            <ul id='blog-list'>
+                {% for post in site.posts %}
+                    <li class='blog-entry'>
+                        <div class='title-div'>
+                            <p class='post-date'>{{ post.date | date: "%b. %-d, %Y" }}</p><br>
+                            <a href="{{ post.url }}"> {{ post.title }}</a><br>
+                            <p class='post-category'>
+                            {% for category in post.categories %}
+                                <a href='{{category}}' class="post-category-tag">{{ category }}</a>
+                            {% endfor %}
+                            </p>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div id='contact-root'>
+    <div id='contact-content'>
+        <a href="https://github.com/Hackerry"><i class="fab fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/hackerrynjc"><i class="fab fa-linkedin-in"></i></a>
+        <a href="mailto:harrynjc@gmail.com"><i class="far fa-envelope"></i></a>
+    </div>
+</div>
