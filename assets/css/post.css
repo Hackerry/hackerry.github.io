@@ -86,4 +86,5 @@ blockquote > ul {border:none;}
 blockquote > ol {border:none;}
 .ref-link {color:white;}
 .ref-link:first-of-type {margin-top:-10px;}
+code {display:inline;font-family:'Courier New', Courier, monospace;color:#aa0000;}
 /* Content styles end */
